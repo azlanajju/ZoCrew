@@ -5,9 +5,47 @@ $menu_path = '../';
 
 $conn = getConnection();
 
-// Fetch all employees
-$stmt = $conn->prepare("SELECT employee_id, employee_code, first_name, last_name, email, phone, department_name, designation_name, team_name, status, role FROM employees ORDER BY employee_id DESC");
-$stmt->execute();
+// Fetch filter options
+$departments = $conn->query("SELECT name FROM departments ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
+$roles = ['Admin', 'Manager', 'Employee'];
+$statuses = ['Active', 'Inactive'];
+
+// Handle filters
+$where = [];
+$params = [];
+if (!empty($_GET['search'])) {
+    $where[] = "(first_name LIKE :search OR last_name LIKE :search OR email LIKE :search OR employee_code LIKE :search)";
+    $params[':search'] = '%' . $_GET['search'] . '%';
+}
+if (!empty($_GET['department'])) {
+    $where[] = "department_name = :department";
+    $params[':department'] = $_GET['department'];
+}
+if (!empty($_GET['status'])) {
+    $where[] = "status = :status";
+    $params[':status'] = $_GET['status'];
+}
+if (!empty($_GET['role'])) {
+    $where[] = "role = :role";
+    $params[':role'] = $_GET['role'];
+}
+$whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
+
+// Pagination
+$perPage = 10;
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $perPage;
+
+// Count total
+$countStmt = $conn->prepare("SELECT COUNT(*) FROM employees $whereSql");
+$countStmt->execute($params);
+$totalRows = $countStmt->fetchColumn();
+$totalPages = ceil($totalRows / $perPage);
+
+// Fetch employees
+$sql = "SELECT employee_id, employee_code, first_name, last_name, email, phone, department_name, designation_name, team_name, status, role FROM employees $whereSql ORDER BY employee_id DESC LIMIT $perPage OFFSET $offset";
+$stmt = $conn->prepare($sql);
+$stmt->execute($params);
 $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -18,6 +56,15 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Employees - ZoCrew HRMS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+        :root {
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 90px;
+            --primary-color: #3a7bd5;
+            --secondary-color: #5f4b8b;
+            --text-color: #f0f0f0;
+            --hover-color: rgb(166, 108, 224);
+            --transition-speed: 0.3s;
+        }
         body {
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #fff;
@@ -25,11 +72,14 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: #222;
         }
         .main-content {
-            margin-left: 270px;
+            margin-left: var(--sidebar-width);
             margin-top: 60px;
             padding: 32px 2vw 32px 2vw;
             min-height: calc(100vh - 60px);
-            transition: margin-left 0.3s;
+            transition: margin-left var(--transition-speed) ease;
+        }
+        body.sidebar-collapsed .main-content {
+            margin-left: var(--sidebar-collapsed-width);
         }
         .page-header {
             display: flex;
@@ -47,14 +97,14 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .add-btn {
             display: flex;
             align-items: center;
-            background: #27ae60;
-            color: #fff;
+            background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: var(--text-color);
             padding: 8px 20px;
             border-radius: 7px;
             text-decoration: none;
             font-weight: 600;
             font-size: 0.98em;
-            box-shadow: 0 2px 8px rgba(39,174,96,0.10);
+            box-shadow: 0 2px 8px rgba(90, 123, 213, 0.10);
             transition: background 0.2s, box-shadow 0.2s;
             border: none;
             outline: none;
@@ -63,10 +113,45 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .add-btn i {
             margin-right: 7px;
             font-size: 1em;
+            color: var(--hover-color);
+            transition: color 0.2s;
         }
         .add-btn:hover {
-            background: #219150;
-            box-shadow: 0 4px 16px rgba(39,174,96,0.13);
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 4px 16px rgba(90, 123, 213, 0.13);
+            color: #fff;
+        }
+        .add-btn:hover i {
+            color: #fff;
+        }
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 18px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 18px;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+        }
+        .filter-bar input, .filter-bar select {
+            padding: 7px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1em;
+            background: #fafbfc;
+            transition: border 0.2s;
+        }
+        .filter-bar input:focus, .filter-bar select:focus {
+            border: 1.5px solid var(--primary-color);
+            outline: none;
+            background: #fff;
+        }
+        .filter-bar label {
+            font-weight: 500;
+            color: #444;
+            margin-right: 4px;
         }
         .table-container {
             background: #fff;
@@ -91,7 +176,7 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
         th {
             background: #f8f9fa;
             font-weight: 700;
-            color: #6c7a89;
+            color: #5f4b8b;
             font-size: 0.97em;
             letter-spacing: 0.2px;
         }
@@ -106,21 +191,30 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         .actions a {
             margin-right: 8px;
-            color: #3498db;
+            color: var(--primary-color);
             text-decoration: none;
             font-size: 1em;
             padding: 4px 6px;
             border-radius: 4px;
-            transition: background 0.15s;
+            transition: background 0.15s, color 0.15s;
+            background: none;
         }
         .actions a.delete {
             color: #e74c3c;
         }
         .actions a:hover {
-            background: #f0f8f5;
+            background: var(--primary-color);
+            color: #fff;
+        }
+        .actions a:hover i {
+            color: #fff;
+        }
+        .actions i {
+            color: var(--hover-color);
+            transition: color 0.2s;
         }
         .status-active {
-            color: #27ae60;
+            color: var(--primary-color);
             font-weight: 600;
             font-size: 0.97em;
         }
@@ -129,17 +223,32 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 600;
             font-size: 0.97em;
         }
-        td, th {
-            border-right: 1px solid #f2f2f2;
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            margin: 18px 0 0 0;
         }
-        td:last-child, th:last-child {
-            border-right: none;
+        .pagination a, .pagination span {
+            display: inline-block;
+            min-width: 32px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: #f8f9fa;
+            color: #5f4b8b;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1em;
+            transition: background 0.2s, color 0.2s;
         }
-        table thead tr th:first-child {
-            border-top-left-radius: 10px;
+        .pagination a.active, .pagination span.active {
+            background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: #fff;
         }
-        table thead tr th:last-child {
-            border-top-right-radius: 10px;
+        .pagination a:hover:not(.active) {
+            background: var(--primary-color);
+            color: #fff;
         }
         @media (max-width: 900px) {
             .main-content {
@@ -161,6 +270,32 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <h1>Employees</h1>
             <a href="./add/index.php" class="add-btn"><i class="fas fa-plus"></i> Add Employee</a>
         </div>
+        <form class="filter-bar" method="get" action="">
+            <label for="search">Search</label>
+            <input type="text" id="search" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" placeholder="Name, Email, Code...">
+            <label for="department">Department</label>
+            <select id="department" name="department">
+                <option value="">All</option>
+                <?php foreach($departments as $d): ?>
+                    <option value="<?= htmlspecialchars($d) ?>" <?= (($_GET['department'] ?? '') == $d) ? 'selected' : '' ?>><?= htmlspecialchars($d) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <label for="status">Status</label>
+            <select id="status" name="status">
+                <option value="">All</option>
+                <?php foreach($statuses as $s): ?>
+                    <option value="<?= $s ?>" <?= (($_GET['status'] ?? '') == $s) ? 'selected' : '' ?>><?= $s ?></option>
+                <?php endforeach; ?>
+            </select>
+            <label for="role">Role</label>
+            <select id="role" name="role">
+                <option value="">All</option>
+                <?php foreach($roles as $r): ?>
+                    <option value="<?= $r ?>" <?= (($_GET['role'] ?? '') == $r) ? 'selected' : '' ?>><?= $r ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit" class="add-btn" style="padding:7px 18px;font-size:0.97em;"><i class="fas fa-filter"></i> Filter</button>
+        </form>
         <div class="table-container">
             <table>
                 <thead>
@@ -203,6 +338,30 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </tbody>
             </table>
         </div>
+        <?php if ($totalPages > 1): ?>
+        <div class="pagination">
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <?php if ($i == $page): ?>
+                    <span class="active"><?= $i ?></span>
+                <?php else: ?>
+                    <a href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>" class="<?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
+                <?php endif; ?>
+            <?php endfor; ?>
+        </div>
+        <?php endif; ?>
     </div>
+    <script>
+    // Responsive main content margin for sidebar collapse/expand
+    document.addEventListener('DOMContentLoaded', function() {
+        const observer = new MutationObserver(function() {
+            if(document.body.classList.contains('sidebar-collapsed')) {
+                document.querySelector('.main-content').style.marginLeft = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-collapsed-width');
+            } else {
+                document.querySelector('.main-content').style.marginLeft = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width');
+            }
+        });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    });
+    </script>
 </body>
 </html>

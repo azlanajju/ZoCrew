@@ -20,7 +20,7 @@
             </a>
         </li>
         <li class="<?php echo ($current_page == 'departments') ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>departments.php">
+            <a href="<?php echo $menu_path; ?>departments/">
                 <i class="fas fa-building"></i>
                 <span class="link-text">Departments</span>
             </a>
@@ -105,7 +105,7 @@
     --primary-color: #3a7bd5;
     --secondary-color: #5f4b8b;
     --text-color: #f0f0f0;
-    --hover-color: #7f53ac;
+    --hover-color:rgb(166, 108, 224);
     --transition-speed: 0.3s;
 }
 
