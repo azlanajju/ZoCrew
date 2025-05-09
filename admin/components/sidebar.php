@@ -6,8 +6,8 @@
         </div>
     </div>
     <ul class="sidebar-menu">
-        <li class="<?php echo ($current_page == 'index') ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>">
+        <li class="<?php echo ($current_page == 'dashboard') ? 'active' : ''; ?>">
+            <a href="<?php echo $menu_path; ?>dashboard">
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="link-text">Dashboard</span>
             </a>
@@ -76,14 +76,14 @@
             </a>
         </li>
         <div class="section-divider"><span>Organization</span></div>
-        <li class="<?php echo strpos($current_page, 'organization/profile') !== false ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>organization/profile">
+        <li class="<?php echo strpos($current_page, 'organizationProfile') !== false ? 'active' : ''; ?>">
+            <a href="<?php echo $menu_path; ?>organizationProfile">
                 <i class="fas fa-building"></i>
                 <span class="link-text">Company Profile</span>
             </a>
         </li>
-        <li class="<?php echo strpos($current_page, 'organization/branches') !== false ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>organization/branches">
+        <li class="<?php echo strpos($current_page, 'organizationBbranches') !== false ? 'active' : ''; ?>">
+            <a href="<?php echo $menu_path; ?>organizationBranches">
                 <i class="fas fa-map-marker-alt"></i>
                 <span class="link-text">Branches</span>
             </a>
