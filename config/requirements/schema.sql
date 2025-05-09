@@ -43,7 +43,7 @@
         hr_id INT,       -- Reference to HR assigned to the employee
         employee_code VARCHAR(50) NOT NULL UNIQUE,  -- Unique company-assigned ID
         work_location VARCHAR(150),  -- Office branch or location
-        
+
         employment_type ENUM('Full-Time', 'Part-Time', 'Contract') DEFAULT 'Full-Time',  -- Type of employment
         official_email VARCHAR(150),  -- Official email address
         emergency_contact VARCHAR(20),  -- Emergency contact phone number
@@ -188,16 +188,6 @@
     );
 
 
-    CREATE TABLE company_holidays (
-        holiday_id INT AUTO_INCREMENT PRIMARY KEY,
-        holiday_name VARCHAR(255) NOT NULL,
-        holiday_date DATE NOT NULL,
-        description TEXT,
-        holiday_type ENUM('Floater', 'Normal') NOT NULL,
-        is_federal BOOLEAN DEFAULT FALSE,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    );
 
     CREATE TABLE company_holidays (
         holiday_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -247,4 +237,19 @@
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,  -- Branch record creation timestamp
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- Branch record last updated timestamp
         FOREIGN KEY (organization_id) REFERENCES organization_details(organization_id)  -- Foreign key reference to the organization
+    );
+
+    CREATE TABLE employee_leaves (
+        leave_id INT AUTO_INCREMENT PRIMARY KEY,
+        employee_id INT NOT NULL,
+        leave_type ENUM('Casual Leave', 'Sick Leave', 'Earned Leave', 'Maternity Leave', 'Paternity Leave', 'Other') NOT NULL,
+        start_date DATE NOT NULL,
+        end_date DATE NOT NULL,
+        days DECIMAL(4,2) NOT NULL,
+        reason TEXT,
+        status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+        remarks TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
     );

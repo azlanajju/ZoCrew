@@ -51,46 +51,46 @@
             </a>
         </li>
         <li class="<?php echo ($current_page == 'timings') ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>timings.php">
+            <a href="<?php echo $menu_path; ?>timings">
                 <i class="fas fa-clock"></i>
                 <span class="link-text">Work Timings</span>
             </a>
         </li>
         <li class="<?php echo ($current_page == 'holidays') ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>holidays.php">
+            <a href="<?php echo $menu_path; ?>holidays">
                 <i class="fas fa-calendar-day"></i>
                 <span class="link-text">Holidays</span>
             </a>
         </li>
         <div class="section-divider"><span>Leave Management</span></div>
-        <li class="<?php echo strpos($current_page, 'leaves/balance') !== false ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>leaves/balance.php">
+        <li class="<?php echo strpos($current_page, 'leavesBalances') !== false ? 'active' : ''; ?>">
+            <a href="<?php echo $menu_path; ?>admin/leavesBalances">
                 <i class="fas fa-balance-scale"></i>
                 <span class="link-text">Leave Balance</span>
             </a>
         </li>
-        <li class="<?php echo strpos($current_page, 'leaves/approvals') !== false ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>leaves/approvals.php">
+        <li class="<?php echo strpos($current_page, 'leavesApprovals') !== false ? 'active' : ''; ?>">
+            <a href="<?php echo $menu_path; ?>leavesApprovals">
                 <i class="fas fa-check-circle"></i>
                 <span class="link-text">Leave Approvals</span>
             </a>
         </li>
         <div class="section-divider"><span>Organization</span></div>
         <li class="<?php echo strpos($current_page, 'organization/profile') !== false ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>organization/profile.php">
+            <a href="<?php echo $menu_path; ?>organization/profile">
                 <i class="fas fa-building"></i>
                 <span class="link-text">Company Profile</span>
             </a>
         </li>
         <li class="<?php echo strpos($current_page, 'organization/branches') !== false ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>organization/branches.php">
+            <a href="<?php echo $menu_path; ?>organization/branches">
                 <i class="fas fa-map-marker-alt"></i>
                 <span class="link-text">Branches</span>
             </a>
         </li>
         <div class="section-divider"><span>Settings</span></div>
-        <li class="<?php echo strpos($current_page, 'settings/system') !== false ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>settings/system.php">
+        <li class="<?php echo strpos($current_page, 'systemSettings') !== false ? 'active' : ''; ?>">
+            <a href="<?php echo $menu_path; ?>systemSettings">
                 <i class="fas fa-cogs"></i>
                 <span class="link-text">System Settings</span>
             </a>
