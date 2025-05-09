@@ -26,20 +26,20 @@
             </a>
         </li>
         <li class="<?php echo ($current_page == 'teams') ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>teams.php">
+            <a href="<?php echo $menu_path; ?>teams">
                 <i class="fas fa-user-friends"></i>
                 <span class="link-text">Teams</span>
             </a>
         </li>
         <li class="<?php echo ($current_page == 'designations') ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>designations.php">
+            <a href="<?php echo $menu_path; ?>designations">
                 <i class="fas fa-id-badge"></i>
                 <span class="link-text">Designations</span>
             </a>
         </li>
         <div class="section-divider"><span>Attendance</span></div>
         <li class="<?php echo strpos($current_page, 'attendance/daily') !== false ? 'active' : ''; ?>">
-            <a href="<?php echo $menu_path; ?>attendance/daily.php">
+            <a href="<?php echo $menu_path; ?>attendances/">
                 <i class="fas fa-calendar-check"></i>
                 <span class="link-text">Daily Attendance</span>
             </a>
